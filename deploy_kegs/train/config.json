@@ -1,0 +1,5 @@
+{
+	"base_model": "openai/whisper-large-v3-turbo",
+	"output_dir": "./models/whisper-large-v3-turbo-finetuned",
+	"dataset_path": "./dataset"
+}

@@ -1,0 +1,5 @@
+{
+	"base_model": "openai/whisper-medium",
+	"output_dir": "./models/whisper-medium-finetuned",
+	"dataset_path": "./dataset"
+}

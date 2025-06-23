@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+	<meta charset="UTF-8" />
+	<title>KEGS 자막 생성기</title>
+	<link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+	<div class="container">
+		<h1>🎮 게임 영상 자막 생성기</h1>
+		<input type="text" id="youtubeUrl" placeholder="유튜브 링크를 입력하세요" />
+		<button id="generateBtn">자막 영상 생성</button>
+		<button id="processBtn">원격 자막 영상 생성</button>
+
+		<div id="preview" style="display: none;">
+			<h3>🎥 영상 미리보기</h3>
+			<img id="thumbnail" src="" alt="썸네일" width="360" />
+			<p id="title"></p>
+		</div>
+
+		<div id="spinner" class="spinner" style="display: none;"></div>
+		<p id="status"></p>
+
+		<video id="videoPlayer" controls width="720" style="display: none;"></video>
+	</div>
+	<script src="main.js"></script>
+</body>
+
+</html>
