@@ -4,7 +4,7 @@ backend/__pycache__/
 temp/*
 dataset/*
 tmp.py
-*.txt
+youtube_links.txt
 models/*
 .vscode/
 deploy_kegs/outputs/*

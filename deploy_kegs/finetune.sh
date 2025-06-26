@@ -5,7 +5,7 @@
 #SBATCH --cpus-per-gpu=8
 #SBATCH --mem-per-gpu=32G
 #SBATCH -p batch_ugrad
-#SBATCH -w aurora-g6
+#SBATCH -w aurora-g5
 #SBATCH -t 1-00:00:00
 #SBATCH -o logs/slurm-%A.out
 
