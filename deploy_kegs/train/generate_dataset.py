@@ -1,4 +1,5 @@
-#!/usr/bin/env python3
+# 📄 deploy_kegs/train/generate_dataset.py - YouTube 오디오 다운로드 및 자막 생성
+
 import os
 import sys
 import subprocess
@@ -17,7 +18,7 @@ get_speech_timestamps = vad_utils[0]
 
 # 경로 설정
 DATASET_DIR = "./dataset"
-MODEL_DIR = "./models/whisper-large-v3-finetuned"
+MODEL_DIR = "./models/whisper-large-v3-turbo-finetuned"
 SAMPLE_RATE = 16000
 MIN_VALID_TEXT_LEN = 5
 

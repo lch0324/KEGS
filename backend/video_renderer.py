@@ -1,3 +1,5 @@
+# 📄 backend/video_renderer.py - 유튜브 영상에 자막을 입히는 기능
+
 import os
 import subprocess
 import shutil
@@ -30,7 +32,7 @@ def render_video_with_subtitles(youtube_url, srt_path, output_dir, download_only
     output_video_path = os.path.join(output_dir, "subtitled_output.mp4")
     rel_output = os.path.relpath(output_video_path, start=os.getcwd()).replace("\\", "/")
 
-    # ✅ ffmpeg subtitles 필터에 force_style 옵션 추가
+    # ffmpeg subtitles 필터에 force_style 옵션 추가
     subtitle_filter = f"subtitles='{rel_srt}':force_style='FontName=Noto Sans KR,FontSize=20,PrimaryColour=&H00FFFFFF,BackColour=&H80000000,BorderStyle=3,OutlineColour=&H00000000,Outline=1'"
 
     command = [

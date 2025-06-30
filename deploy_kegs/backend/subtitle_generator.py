@@ -1,4 +1,4 @@
-# 📄 subtitle_generator.py - Whisper로부터 SRT 자막 생성
+# 📄 deploy_kegs/backend/subtitle_generator.py - Whisper로부터 SRT 자막 생성
 
 import os
 import re
@@ -8,11 +8,12 @@ from moviepy import VideoFileClip
 from transformers import WhisperProcessor, WhisperForConditionalGeneration
 from konlpy.tag import Komoran
 import logging
+import config
 
-# ✅ 로깅 설정
+# 로깅 설정
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
-# ✅ Silero VAD 모델 로드
+# Silero VAD 모델 로드
 vad_model, utils = torch.hub.load('snakers4/silero-vad', 'silero_vad', force_reload=False)
 get_speech_timestamps = utils[0]
 
@@ -90,7 +91,7 @@ def improved_semantic_split(text, min_len=12, max_len=80):
             if chunk:
                 chunks.append(chunk)
 
-        # 🧩 [로컬 기준] 짧은 절 병합
+        # 짧은 절 병합
         merged_chunks = []
         if len(chunks) == 1:
             merged_chunks.append(chunks[0])
@@ -157,7 +158,7 @@ def format_srt_time(seconds):
     ms = int((seconds - int(seconds)) * 1000)
     return f"{h:02}:{m:02}:{s:02},{ms:03}"
 
-def generate_srt_from_video(video_path, srt_output_path, model_path="./models/whisper-large-v3-turbo-finetuned"):
+def generate_srt_from_video(video_path, srt_output_path, model_path=config.MODEL_PATH):
     try:
         logging.info("[🎬] 영상에서 오디오 추출 중...")
         video_path = os.path.abspath(video_path)

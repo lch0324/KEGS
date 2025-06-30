@@ -1,4 +1,4 @@
-# train/finetune.py
+# 📄 deploy_kegs/train/finetune.py - Whisper 모델을 4비트 양자화로 파인튜닝하는 스크립트
 
 import os
 import glob

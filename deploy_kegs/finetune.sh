@@ -1,20 +1,23 @@
 #!/usr/bin/bash
+source config.sh
 
-#SBATCH -J KEGS
-#SBATCH --gres=gpu:1
-#SBATCH --cpus-per-gpu=8
-#SBATCH --mem-per-gpu=32G
-#SBATCH -p batch_ugrad
-#SBATCH -w aurora-g5
-#SBATCH -t 1-00:00:00
-#SBATCH -o logs/slurm-%A.out
+# ─────────────────── SLURM 헤더 ───────────────────
+#SBATCH -J $SLURM_JOB_NAME
+#SBATCH --gres=gpu:$SLURM_GPU
+#SBATCH --cpus-per-gpu=$SLURM_CPUS
+#SBATCH --mem-per-gpu=$SLURM_MEM
+#SBATCH -p $SLURM_PART
+#SBATCH -w $SLURM_NODE
+#SBATCH -t $SLURM_TIME
+#SBATCH -o $LOGS_DIR/slurm-%A.out
 
 # 🧠 Conda 환경 설정
-source /data/lch0324/anaconda3/etc/profile.d/conda.sh
-conda activate kegs_env
+source $CONDA_DIR
+# Conda 환경 활성화
+conda activate $CONDA_ENV
 
-# 📁 작업 디렉토리 이동 (필요 시 수정)
-cd /data/lch0324/repos/kegs
+# 📁 작업 디렉토리 이동
+cd $REPO_DIR
 
 # 🔧 파인튜닝 실행
 python train/finetune.py

@@ -1,4 +1,4 @@
-# train/finetune.py
+# 📄 train/finetune.py - Whisper 모델 파인튜닝 스크립트
 
 import os
 import glob

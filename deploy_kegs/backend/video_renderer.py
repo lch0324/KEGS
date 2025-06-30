@@ -1,7 +1,10 @@
+# 📄 deploy_kegs/backend/video_renderer.py - ffmpeg를 사용하여 비디오에 자막을 입히는 모듈
+
 import os
 import subprocess
 import shutil
 import logging
+import config
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
@@ -18,11 +21,9 @@ def render_video_with_subtitles(video_path, srt_path, output_path):
         abs_srt = os.path.abspath(target_srt_path).replace("\\", "/")
         abs_output = os.path.abspath(output_path).replace("\\", "/")
 
-        # font_path = "/home/lch0324/.fonts/NotoSansKR-Regular.ttf"
-
         subtitle_filter = f"subtitles={abs_srt}"
 
-        ffmpeg_path = "/data/lch0324/downloads/ffmpeg-static/ffmpeg-7.0.2-amd64-static/ffmpeg"
+        ffmpeg_path = config.FFMPEG_PATH
 
         command = [
             ffmpeg_path, "-y",

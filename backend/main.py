@@ -1,4 +1,4 @@
-# 📄 main.py - FastAPI 서버 (로컬 + 원격 통합: /generate + /process)
+# 📄 backend/main.py - FastAPI 서버 (로컬: /generate + 원격: /process)
 
 import paramiko
 import uuid
@@ -11,12 +11,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from moviepy import VideoFileClip
+import config
 from video_renderer import render_video_with_subtitles
 from subtitle_generator import generate_srt_from_video
 
 app = FastAPI()
 
-# ✅ CORS 설정
+# CORS 설정
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -25,26 +26,26 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ✅ 요청 바디 모델
+# 요청 모델 정의
 class VideoRequest(BaseModel):
     youtube_url: str
 
 class YouTubeRequest(BaseModel):
     youtube_url: str
 
-# ✅ 서버 SFTP 정보
-SSH_HOST = "aurora.khu.ac.kr"
-SSH_PORT = 30080
-SSH_USER = "lch0324"
-SSH_PASSWORD = "lee962002!"
+# 서버 SFTP 정보
+SSH_HOST = config.SSH_HOST
+SSH_PORT = config.SSH_PORT
+SSH_USER = config.SSH_USER
+SSH_PASSWORD = config.SSH_PASSWORD
 
-REMOTE_INPUT_DIR = "/data/lch0324/repos/kegs/inputs"
-REMOTE_OUTPUT_DIR = "/data/lch0324/repos/kegs/outputs"
+REMOTE_INPUT_DIR = config.REMOTE_INPUT_DIR
+REMOTE_OUTPUT_DIR = config.REMOTE_OUTPUT_DIR
 
 TEMP_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "temp"))
 LOG_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "logs"))
 
-# ✅ (로컬) /generate
+# /generate (로컬)
 @app.post("/generate")
 def generate_subtitled_video(req: VideoRequest):
     start_time = time.time()
@@ -82,7 +83,7 @@ def generate_subtitled_video(req: VideoRequest):
             f.write(f"영상 길이: [{video_length_str}]\n")
             f.write(f"소요 시간: {int(consumed_time // 60)}분 {int(consumed_time % 60)}초\n\n")
 
-        # ✅ mp4 파일만 반환
+        # mp4 파일 반환
         return FileResponse(final_video_path, media_type="video/mp4", filename="output.mp4")
 
     except Exception as e:
@@ -96,7 +97,7 @@ def generate_subtitled_video(req: VideoRequest):
 
         return {"error": str(e)}
 
-# ✅ (원격) /process
+# /process (원격)
 def upload_link_to_server(video_id, youtube_url):
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -137,10 +138,10 @@ def process_youtube(req: YouTubeRequest):
         local_video_dir = os.path.join(TEMP_DIR, video_id)
         os.makedirs(local_video_dir, exist_ok=True)
 
-        # ✅ 유튜브 링크 서버에 전송
+        # 유튜브 링크 서버에 전송
         upload_link_to_server(video_id, youtube_url)
 
-        # ✅ sbatch job 제출
+        # sbatch job 제출
         submit_sbatch_job()
 
         output_srt = f"{video_id}.srt"
@@ -188,14 +189,14 @@ def process_youtube(req: YouTubeRequest):
         if not os.path.exists(local_srt_path):
             raise HTTPException(status_code=500, detail="로컬에 srt 파일이 존재하지 않습니다.")
 
-        # ✅ 로컬에서 유튜브 mp4 다운로드 및 자막 입히기
+        # 로컬에서 유튜브 mp4 다운로드 및 자막 입히기
         final_video_path = render_video_with_subtitles(youtube_url, local_srt_path, local_video_dir, download_only=False)
         original_video_path = os.path.join(local_video_dir, "original_video.mp4")
-        # ✅ 원본 mp4 삭제
+        # 원본 mp4 삭제
         if os.path.exists(original_video_path):
             os.remove(original_video_path)
 
-        # ✅ 최종 자막 입힌 mp4 반환
+        # 최종 자막 입힌 mp4 반환
         return FileResponse(final_video_path, media_type="video/mp4", filename=os.path.basename(final_video_path))
 
     except Exception as e:

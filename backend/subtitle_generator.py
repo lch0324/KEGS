@@ -1,3 +1,5 @@
+# 📄 backend/subtitle_generator.py - Whisper로부터 SRT 자막 생성
+
 import os
 import re
 import torch
@@ -6,6 +8,7 @@ from moviepy import VideoFileClip
 from transformers import WhisperProcessor, WhisperForConditionalGeneration
 from konlpy.tag import Komoran
 import uuid
+import config
 
 vad_model, utils = torch.hub.load('snakers4/silero-vad', 'silero_vad', force_reload=False)
 get_speech_timestamps = utils[0]
@@ -56,7 +59,7 @@ def improved_semantic_split(text, video_id, min_len=12, max_len=80):
     """
     os.makedirs("../logs", exist_ok=True)
     log_path = f"../logs/split_debug_{video_id}.txt"
-    log_file = open(log_path, "a", encoding="utf-8")  # ✅ append 모드
+    log_file = open(log_path, "a", encoding="utf-8")
 
     komoran = Komoran()
     sentences = re.split(r'(?<=[.!?])\s+', text.strip())
@@ -96,7 +99,7 @@ def improved_semantic_split(text, video_id, min_len=12, max_len=80):
 
                     ec_candidates.append((ec_idx, ec_end_pos))
 
-                    # ✅ EC 끝난 바로 다음이 공백이면 분리
+                    # EC 끝난 바로 다음이 공백이면 분리
                     if ec_end_pos < len(sentence) and sentence[ec_end_pos] == ' ':
                         split_indices.add(ec_end_pos)
 
@@ -214,7 +217,7 @@ def format_srt_time(seconds):
     ms = int((seconds - int(seconds)) * 1000)
     return f"{h:02}:{m:02}:{s:02},{ms:03}"
 
-def generate_srt_from_video(video_path, srt_output_path, model_path="../models/whisper-large-v3-finetuned"):
+def generate_srt_from_video(video_path, srt_output_path, model_path=config.MODEL_PATH):
     print("[🎬] 영상에서 오디오 추출 중...")
     audio_path = video_path.replace(".mp4", ".wav")
 
@@ -241,7 +244,7 @@ def generate_srt_from_video(video_path, srt_output_path, model_path="../models/w
     segment_index = 1
     video_id = str(uuid.uuid4())[:8]
 
-    # ✅ raw_transcript.txt 덮어쓰기 (영상마다)
+    # raw_transcript.txt 덮어쓰기
     os.makedirs("../logs", exist_ok=True)
     with open("../logs/raw_transcript.txt", "w", encoding="utf-8") as tf:
         tf.write("")  # 초기화
@@ -269,11 +272,11 @@ def generate_srt_from_video(video_path, srt_output_path, model_path="../models/w
         if not decoded or len(decoded) < MIN_VALID_TEXT_LEN:
             continue
 
-        # ✅ Whisper 원문 저장
+        # Whisper 원문 저장
         with open("../logs/raw_transcript.txt", "a", encoding="utf-8") as tf:
             tf.write(decoded + "\n\n")
 
-        # ✅ Improved split
+        # Improved split
         lines = improved_semantic_split(decoded, video_id, min_len=12, max_len=80)
 
         total_chars = sum(len(line) for line in lines)

@@ -1,4 +1,4 @@
-# train/generate_dataset.py
+# 📄 train/generate_dataset.py - 음성 및 자막 데이터셋 생성
 
 import os
 import sys

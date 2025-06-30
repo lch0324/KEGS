@@ -1,4 +1,4 @@
-# 📄 main.py - 서버용 메인 감시 스크립트
+# 📄 deploy_kegs/main.py - 서버용 메인 감시 스크립트
 
 import os
 import time
@@ -25,7 +25,7 @@ def process_youtube_link(txt_file):
     try:
         logging.info(f"[🚀] 감지된 링크 파일: {txt_file}")
 
-        start_time = time.time()  # ✅ 전체 시간 측정 시작
+        start_time = time.time()  # 전체 시간 측정 시작
         start_datetime = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
         with open(txt_file, "r", encoding="utf-8") as f:
@@ -34,13 +34,13 @@ def process_youtube_link(txt_file):
         if not youtube_url:
             raise ValueError("비어있는 URL 파일")
 
-        # ✅ 파일명에서 video_id 추출
+        # 파일명에서 video_id 추출
         video_id = os.path.splitext(os.path.basename(txt_file))[0]
 
         local_video_path = os.path.join(INPUT_DIR, f"{video_id}.mp4")
         download_cmd = [
             "yt-dlp",
-            "-f", "best[ext=mp4]",
+            "-f", "best[ext=mp4][vcodec!*=av01]",
             "-o", local_video_path.replace("\\", "/"),
             youtube_url
         ]
@@ -67,7 +67,7 @@ def process_youtube_link(txt_file):
         end_time = time.time()  # ✅ 전체 시간 측정 끝
         consumed_time = int(end_time - start_time)
 
-        # ✅ 영상 길이 가져오기
+        # 영상 길이 가져오기
         clip = VideoFileClip(local_video_path)
         video_duration = clip.duration
         clip.close()
@@ -75,10 +75,10 @@ def process_youtube_link(txt_file):
         minutes, seconds = divmod(video_duration, 60)
         video_length_str = f"{int(minutes)}:{int(seconds):02d}"
 
-        # ✅ 방법 가져오기
+        # 방법 가져오기
         method = os.getenv("KEGS_ENV", "로컬 환경")
 
-        # ✅ 로그 파일 기록
+        # 로그 파일 기록
         log_path = os.path.join(OUTPUT_DIR, "consumed_time.txt")
         with open(log_path, "a", encoding="utf-8") as f:
             f.write(f"[{video_id}]\n")
